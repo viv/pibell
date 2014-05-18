@@ -4,6 +4,17 @@ from time import sleep
 import subprocess
 import httplib, urllib
 import config
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler = logging.FileHandler('application.log')
+handler.setLevel(logging.INFO)
+handler.setFormatter(formatter)
+
+logger.addHandler(handler)
 
 LOW_PRIORITY = -1
 MEDIUM_PRIORITY = 0
@@ -24,14 +35,14 @@ def notifyPhones(message, priority=MEDIUM_PRIORITY):
     conn.getresponse()
 
 notifyPhones('Listener started', LOW_PRIORITY)
-print 'Doorbell listener Started\r'
+logger.info('Doorbell listener Started')
 
 while True:
     key = raw_input("Hit a key, press Q to quit: ")
     if key.lower() == "q":
         break
     else:
-        print 'Button Pushed!\r'
         subprocess.Popen(["ogg123","-q","dingdong.ogg"])
         notifyPhones(config.message_text)
+        logger.info('Doorbell pressed')
         sleep(3);

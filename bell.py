@@ -5,6 +5,17 @@ import subprocess
 import httplib, urllib
 import RPi.GPIO as GPIO
 import config
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler = logging.FileHandler('application.log')
+handler.setLevel(logging.INFO)
+handler.setFormatter(formatter)
+
+logger.addHandler(handler)
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(config.bell_pin, GPIO.IN)
@@ -28,10 +39,11 @@ def notifyPhones(message, priority=MEDIUM_PRIORITY):
     conn.getresponse()
 
 notifyPhones('Listener started', LOW_PRIORITY)
-print 'Doorbell listener Started\r'
+logger.info('Doorbell listener Started')
 
 while True:
     if (GPIO.input(23) == False):
         subprocess.Popen(["ogg123","-q","dingdong.ogg"])
         notifyPhones(config.message_text)
+        logger.info('Doorbell pressed')
         sleep(3);
