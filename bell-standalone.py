@@ -5,7 +5,11 @@ import subprocess
 import httplib, urllib
 import config
 
-def notifyPhones(message):
+LOW_PRIORITY = -1
+MEDIUM_PRIORITY = 0
+HIGH_PRIORITY = 1
+
+def notifyPhones(message, priority=MEDIUM_PRIORITY):
     conn = httplib.HTTPSConnection("api.pushover.net:443")
     conn.request("POST", "/1/messages.json",
     urllib.urlencode({
@@ -14,11 +18,12 @@ def notifyPhones(message):
         "title": config.message_title,
         "message": message,
         "url": config.message_url,
+        "priority": priority,
     }), { "Content-type": "application/x-www-form-urlencoded" })
 
     conn.getresponse()
 
-notifyPhones('Listener started')
+notifyPhones('Listener started', LOW_PRIORITY)
 print 'Doorbell listener Started\r'
 
 while True:
