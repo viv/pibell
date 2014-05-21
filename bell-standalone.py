@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from time import sleep
+from time import time
 import subprocess
 import httplib, urllib
 import config
@@ -19,6 +20,11 @@ logger.addHandler(handler)
 LOW_PRIORITY = -1
 MEDIUM_PRIORITY = 0
 HIGH_PRIORITY = 1
+
+rate = 1.0; # unit: messages
+perSecond  = 15.0; # unit: seconds
+allowance = rate; # unit: messages
+last_check = int(time()); # floating-point, e.g. usec accuracy. Unit: seconds
 
 def notifyPhones(message, priority=MEDIUM_PRIORITY):
     logger.debug('Sending pushover message "'
@@ -43,6 +49,15 @@ def notifyPhones(message, priority=MEDIUM_PRIORITY):
                 + ': ' + response.read())
     conn.close()
 
+def playSound():
+    subprocess.Popen(["ogg123","-q","dingdong.ogg"])
+
+def buttonPressed():
+    logger.info('Doorbell pressed')
+    playSound()
+    notifyPhones(config.message_text)
+    sleep(3);
+
 notifyPhones('Listener started', LOW_PRIORITY)
 logger.info('Doorbell listener Started')
 
@@ -51,7 +66,17 @@ while True:
     if key.lower() == "q":
         break
     else:
-        subprocess.Popen(["ogg123","-q","dingdong.ogg"])
-        notifyPhones(config.message_text)
-        logger.info('Doorbell pressed')
-        sleep(3);
+        current = int(time());
+        time_passed = current - last_check;
+        last_check = current;
+        allowance += time_passed * (rate / perSecond);
+
+        if (allowance > rate):
+            allowance = rate; # throttle
+
+        if (allowance < 1.0):
+            logger.info('THROTTLING')
+            subprocess.Popen(["ogg123","-q","dingdong.ogg"])
+        else:
+            buttonPressed()
+            allowance -= 1.0;
