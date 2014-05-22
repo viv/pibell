@@ -5,17 +5,7 @@ import subprocess
 import httplib, urllib
 import RPi.GPIO as GPIO
 import config
-import logging
-
-logger = logging.getLogger(__name__)
-
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler = logging.FileHandler('application.log')
-handler.setFormatter(formatter)
-handler.setLevel(logging.INFO)
-
-logger.setLevel(logging.INFO)
-logger.addHandler(handler)
+import logger
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(config.bell_pin, GPIO.IN)
@@ -24,8 +14,10 @@ LOW_PRIORITY = -1
 MEDIUM_PRIORITY = 0
 HIGH_PRIORITY = 1
 
+log = logger.get(__name__)
+
 def notifyPhones(message, priority=MEDIUM_PRIORITY):
-    logger.debug('Sending pushover message "'
+    log.debug('Sending pushover message "'
                  + message
                  + '" with priority '
                  + str(priority))
@@ -41,18 +33,18 @@ def notifyPhones(message, priority=MEDIUM_PRIORITY):
     }), { "Content-type": "application/x-www-form-urlencoded" })
 
     response = conn.getresponse()
-    logger.debug('Got response: '
+    log.debug('Got response: '
                 + str(response.status)
                 + ' ' + response.reason
                 + ': ' + response.read())
     conn.close()
 
 notifyPhones('Listener started', LOW_PRIORITY)
-logger.info('Doorbell listener Started')
+log.info('Doorbell listener Started')
 
 while True:
     if (GPIO.input(23) == False):
         subprocess.Popen(["ogg123","-q","dingdong.ogg"])
         notifyPhones(config.message_text)
-        logger.info('Doorbell pressed')
+        log.info('Doorbell pressed')
         sleep(3);

@@ -5,17 +5,7 @@ from time import time
 import subprocess
 import httplib, urllib
 import config
-import logging
-
-logger = logging.getLogger(__name__)
-
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler = logging.FileHandler('application.log')
-handler.setFormatter(formatter)
-handler.setLevel(logging.INFO)
-
-logger.setLevel(logging.INFO)
-logger.addHandler(handler)
+import logger
 
 LOW_PRIORITY = -1
 MEDIUM_PRIORITY = 0
@@ -26,8 +16,10 @@ perSecond  = 15.0; # unit: seconds
 allowance = rate; # unit: messages
 last_check = int(time()); # floating-point, e.g. usec accuracy. Unit: seconds
 
+log = logger.get(__name__)
+
 def notifyPhones(message, priority=MEDIUM_PRIORITY):
-    logger.debug('Sending pushover message "'
+    log.debug('Sending pushover message "'
                  + message
                  + '" with priority '
                  + str(priority))
@@ -43,7 +35,7 @@ def notifyPhones(message, priority=MEDIUM_PRIORITY):
     }), { "Content-type": "application/x-www-form-urlencoded" })
 
     response = conn.getresponse()
-    logger.debug('Got response: '
+    log.debug('Got response: '
                 + str(response.status)
                 + ' ' + response.reason
                 + ': ' + response.read())
@@ -53,13 +45,13 @@ def playSound():
     subprocess.Popen(["ogg123","-q","dingdong.ogg"])
 
 def buttonPressed():
-    logger.info('Doorbell pressed')
+    log.info('Doorbell pressed')
     playSound()
     notifyPhones(config.message_text)
     sleep(3);
 
 notifyPhones('Listener started', LOW_PRIORITY)
-logger.info('Doorbell listener Started')
+log.info('Doorbell listener Started')
 
 while True:
     key = raw_input("Hit a key, press Q to quit: ")
@@ -75,7 +67,7 @@ while True:
             allowance = rate; # throttle
 
         if (allowance < 1.0):
-            logger.info('THROTTLING')
+            log.info('THROTTLING')
             subprocess.Popen(["ogg123","-q","dingdong.ogg"])
         else:
             buttonPressed()
