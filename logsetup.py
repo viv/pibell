@@ -9,8 +9,6 @@ handler = logging.handlers.RotatingFileHandler(
 handler.setFormatter(formatter)
 handler.setLevel(logging.DEBUG)
 
-def get(name):
-    logger = logging.getLogger(name)
-    logger.addHandler(handler)
-    logger.setLevel(logging.DEBUG)
-    return logger
+rootLogger = logging.getLogger()
+rootLogger.addHandler(handler)
+rootLogger.setLevel(logging.DEBUG)
