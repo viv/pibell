@@ -2,11 +2,8 @@
 
 from time import sleep
 import config
-import logsetup
 import logging
-import pushover
-import sound
-from application import throttle
+from application import logsetup, throttle, sound, pushover
 
 log = logging.getLogger(__name__)
 
