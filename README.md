@@ -7,3 +7,6 @@ For Ogg playback:
 
 Doorbell audio taken from http://commons.wikimedia.org/wiki/File:Doorbell-cheap-dingdong.ogg
 
+If you get this error: `Error: ALSA lib pcm.c:2217:(snd_pcm_open_noupdate) Unknown PCM cards.pcm.front`
+
+Edit `/usr/share/alsa/alsa.conf` change the line `pcm.front cards.pcm.front` to `pcm.front cards.pcm.default`
