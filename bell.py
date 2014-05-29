@@ -2,6 +2,7 @@
 
 import logging
 import RPi.GPIO as GPIO
+import config
 from application import logsetup, button, pushover
 
 GPIO.setmode(GPIO.BCM)
