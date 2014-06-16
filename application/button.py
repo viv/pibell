@@ -1,18 +1,18 @@
-import sound
-import logging
-import pushover
 import config
-import throttle
+import logging
+from application import logsetup
 
 log = logging.getLogger(__name__)
 
-throttle = throttle.Throttler()
+try:
+	import RPi.GPIO as GPIO
+	GPIO.setmode(GPIO.BCM)
+	GPIO.setup(config.bell_pin, GPIO.IN)
+	log.debug('Loaded GPIO module')
 
-def pressed():
-    log.info('Doorbell pressed')
-    sound.play()
+	def pressed():
+		return (GPIO.input(23) == False)
 
-    if throttle.check():
-        pushover.send(config.message_text)
-    else:
-        log.info('THROTTLING')
+except ImportError:
+	print 'Failed to load GPIO module'
+	log.debug('Failed to load GPIO module')
