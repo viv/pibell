@@ -9,10 +9,9 @@ log = logging.getLogger(__name__)
 throttle = throttle.Throttler()
 
 def pressed():
-    log.info('Doorbell pressed')
-    sound.play()
-
     if throttle.check():
+        log.info('Doorbell pressed')
+        sound.play()
         pushover.send(config.message_text)
     else:
         log.info('THROTTLING')
