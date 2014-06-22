@@ -1,7 +1,7 @@
 from time import time
 
 class Throttler(object):
-    def __init__(self, rate=1.0, perSeconds=15.0):
+    def __init__(self, rate=1.0, perSeconds=5.0):
         self.rate = rate
         self.perSeconds = perSeconds;
         self.allowance = rate;
