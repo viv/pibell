@@ -1,6 +1,7 @@
 import sound
 import logging
 import pushover
+import thingspeak
 import config
 import throttle
 
@@ -13,5 +14,6 @@ def pressed():
         log.info('Doorbell pressed')
         sound.play()
         pushover.send(config.message_text)
+        thingspeak.update()
     else:
         log.info('THROTTLING')
